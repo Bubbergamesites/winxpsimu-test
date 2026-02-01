@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Retro OS Simulator</title>
+    <style>
+        body { background: #222; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        
+        /* The container that will go fullscreen */
+        #screen_container { 
+            border: 5px solid #444; 
+            background: #000; 
+            position: relative;
+        }
+
+        .controls { margin-top: 10px; display: flex; gap: 10px; }
+        
+        button { 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            background: #0078d7; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+        }
+
+        button:hover { background: #005a9e; }
+        
+        /* Ensure the canvas stretches to fill the screen when in fullscreen mode */
+        #screen_container:fullscreen canvas {
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="screen_container">
+        <div style="white-space: pre; font-family: Courier, monospace;"></div>
+        <canvas></canvas>
+    </div>
+
+    <div class="controls">
+        <button id="boot-btn">Boot OS</button>
+        <button id="fullscreen-btn" style="display: none;">Go Fullscreen</button>
+    </div>
+
+    <script src="https://copy.sh/v86/build/libv86.js"></script>
+
+    <script>
+        const bootBtn = document.getElementById("boot-btn");
+        const fullscreenBtn = document.getElementById("fullscreen-btn");
+        const container = document.getElementById("screen_container");
+
+        bootBtn.onclick = function() {
+            bootBtn.style.display = "none";
+            fullscreenBtn.style.display = "block"; // Show fullscreen button once OS starts
+
+            var emulator = new V86Starter({
+                wasm_path: "https://copy.sh/v86/build/v86.wasm",
+                memory_size: 256 * 1024 * 1024,
+                vga_memory_size: 8 * 1024 * 1024,
+                screen_container: container,
+                bios: { url: "bios/seabios.bin" },
+                vga_bios: { url: "bios/vgabios.bin" },
+                cdrom: { url: "images/windows_xp.iso" }, 
+                autostart: true,
+            });
+        };
+
+        // Fullscreen Logic
+        fullscreenBtn.onclick = function() {
+            if (container.requestFullscreen) {
+                container.requestFullscreen();
+            } else if (container.mozRequestFullScreen) { /* Firefox */
+                container.mozRequestFullScreen();
+            } else if (container.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                container.webkitRequestFullscreen();
+            } else if (container.msRequestFullscreen) { /* IE/Edge */
+                container.msRequestFullscreen();
+            }
+        };
+    </script>
+</body>
+</html>
